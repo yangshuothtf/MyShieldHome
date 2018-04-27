@@ -1,4 +1,8 @@
 # MyShieldHome
+
+This is a phone call and location monitor APP, based on Android 5.1--6.0. <br>
+Already tested on LeMax X900 and 360 OS<br>
+
 Feature list:<br>
 1. Monitor incoming/outgoing calls.<br>
    1.1 Save every call number even if more than 2 calls at same time.<br>
