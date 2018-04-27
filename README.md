@@ -9,7 +9,7 @@ Feature list:
 -- above done by 2018.1.26
 
 3. Send/receive command via email. -- (done, 2018.2.8)
-   3.1 Check command email when first call after reboot -- done, 2018.4.3
+   3.1 Check command email when first call after reboot -- done, 2018.4.3<br>
    3.2 If GPS location enabled, ignore the flag for first phone call check, and check command email when GPS info reported.
    3.3 Set parameters via email for device name, monitor type, GPS location interval, GPS report time etc. 
 
