@@ -497,7 +497,6 @@ public class CfgParamMgr {
                     {
                         flagList.add(1);
                     }
-//                    flagList.add(Integer.valueOf(strArrayFlag[i]));
                 }
             }
         }
@@ -637,8 +636,14 @@ public class CfgParamMgr {
             tmpTime = entry.getKey();
             if(tmpTime<=curTime)
             {
-                bIsReport = true;
-                entry.setValue(1);
+                if(entry.getValue()!=0)//"1111"
+                {//已经报过
+                }
+                else
+                {
+                    bIsReport = true;
+                    entry.setValue(1);
+                }
                 strGPSmodeFlag+="1111"+CommonParams.PATTERN_COMMA_SPLIT;
             }
             else
