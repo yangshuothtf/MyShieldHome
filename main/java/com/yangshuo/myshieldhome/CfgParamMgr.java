@@ -609,9 +609,10 @@ public class CfgParamMgr {
         }
     }
 
-    public boolean getGPSreportFlag(){
+    public boolean getGPSreportFlag(boolean bEscapeFence){
+        //随时报模式时，越界才会报
         if(bGPSreportModeDefault)
-            return true;
+            return bEscapeFence;
         strGPSmodeFlag = "";
         Calendar cal = Calendar.getInstance();
         int curHour = 0;

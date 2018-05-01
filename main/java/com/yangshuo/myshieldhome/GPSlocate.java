@@ -135,12 +135,13 @@ public class GPSlocate implements AMapLocationListener{
             /*检测围栏状态*/
             //这里读配置文件，只是让时间表可以有更新的机会，否则会一直用内存里的时间表
             CfgParamMgr.getInstance().readCfgFile();//读进状态
-            if(checkFence(amapLocation.getLongitude(), amapLocation.getLatitude())==true) {
+            boolean bEscapeFence = checkFence(amapLocation.getLongitude(), amapLocation.getLatitude());
+            if(bEscapeFence) {
                 //TODO: 写在文件里
                 sbGPS.append(CommonParams.SUB_PARAM_TIME + getCurrentDate() + CommonParams.PATTERN_COMMA_SPLIT + CommonParams.SUB_PARAM_LONGITUDE + amapLocation.getLongitude() + CommonParams.PATTERN_COMMA_SPLIT + CommonParams.SUB_PARAM_LATITUDE + amapLocation.getLatitude() + "\r\n");
                 writeGPSinfoFile(sbGPS.toString());
             }
-            if(CfgParamMgr.getInstance().getGPSreportFlag())
+            if(CfgParamMgr.getInstance().getGPSreportFlag(bEscapeFence))
             {
                 result+=CfgParamMgr.getInstance().getGPSreport();
                 String strMailTitle = CommonParams.MAIL_TITLE_GPS_LOCATE_SUCCEED+CfgParamMgr.getInstance().getMachineName()+".设备ID." + CfgParamMgr.getInstance().getDeviceID()+".时间"+ df.format(date);
