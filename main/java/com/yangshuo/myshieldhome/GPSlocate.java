@@ -69,7 +69,7 @@ public class GPSlocate implements AMapLocationListener{
             gpsWakeLock.acquire();
         }
     }
-    private void releaseWakeLock() {
+    public void releaseWakeLock() {
         if (gpsWakeLock !=null&& gpsWakeLock.isHeld()) {
             gpsWakeLock.release();
             gpsWakeLock =null;
@@ -133,25 +133,24 @@ public class GPSlocate implements AMapLocationListener{
             //解析定位结果，
             String result = sb.toString();
             /*检测围栏状态*/
-            //TODO: 不检查,直接报
-//            CfgParamMgr.getInstance().readCfgFile();//读进状态
-            if(checkFence(amapLocation.getLongitude(), amapLocation.getLatitude())==true)
-            {
+            //这里读配置文件，只是让时间表可以有更新的机会，否则会一直用内存里的时间表
+            CfgParamMgr.getInstance().readCfgFile();//读进状态
+            if(checkFence(amapLocation.getLongitude(), amapLocation.getLatitude())==true) {
                 //TODO: 写在文件里
-                sbGPS.append(CommonParams.SUB_PARAM_TIME+getCurrentDate()+CommonParams.PATTERN_COMMA_SPLIT+CommonParams.SUB_PARAM_LONGITUDE+amapLocation.getLongitude()+CommonParams.PATTERN_COMMA_SPLIT+CommonParams.SUB_PARAM_LATITUDE+amapLocation.getLatitude()+"\r\n");
+                sbGPS.append(CommonParams.SUB_PARAM_TIME + getCurrentDate() + CommonParams.PATTERN_COMMA_SPLIT + CommonParams.SUB_PARAM_LONGITUDE + amapLocation.getLongitude() + CommonParams.PATTERN_COMMA_SPLIT + CommonParams.SUB_PARAM_LATITUDE + amapLocation.getLatitude() + "\r\n");
                 writeGPSinfoFile(sbGPS.toString());
-                if(CfgParamMgr.getInstance().getGPSreportFlag())
+            }
+            if(CfgParamMgr.getInstance().getGPSreportFlag())
+            {
+                result+=CfgParamMgr.getInstance().getGPSreport();
+                String strMailTitle = CommonParams.MAIL_TITLE_GPS_LOCATE_SUCCEED+CfgParamMgr.getInstance().getMachineName()+".设备ID." + CfgParamMgr.getInstance().getDeviceID()+".时间"+ df.format(date);
+                List<String> pathList = getPathList();
+                if(pathList.size()>1)
                 {
-                    result+=CfgParamMgr.getInstance().getGPSreport();
-                    String strMailTitle = CommonParams.MAIL_TITLE_GPS_LOCATE_SUCCEED+CfgParamMgr.getInstance().getMachineName()+".设备ID." + CfgParamMgr.getInstance().getDeviceID()+".时间"+ df.format(date);
-                    List<String> pathList = getPathList();
-                    if(pathList.size()>1)
-                    {
-                        strMailTitle+=CommonParams.MAIL_TITLE_GPS_INFO_MULTI;
-                    }
-                    MailManager.getInstance().sendGPSinfoMailWithMultiFile(strMailTitle, result, pathList);
-                    bRecvCommand = true;
+                    strMailTitle+=CommonParams.MAIL_TITLE_GPS_INFO_MULTI;
                 }
+                MailManager.getInstance().sendGPSinfoMailWithMultiFile(strMailTitle, result, pathList);
+                bRecvCommand = true;
             }
         } else {
             MailManager.getInstance().sendMail(CommonParams.MAIL_TITLE_GPS_LOCATE_FAILED+CfgParamMgr.getInstance().getMachineName()+".设备ID." + CfgParamMgr.getInstance().getDeviceID(), CfgParamMgr.getInstance().getMachineName());
@@ -160,7 +159,10 @@ public class GPSlocate implements AMapLocationListener{
         {
             MailManager.getInstance().receiveCommandMail();
         }
-        releaseWakeLock();
+        else
+        {
+            releaseWakeLock();
+        }
     }
 
     /**

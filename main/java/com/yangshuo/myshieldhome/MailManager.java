@@ -272,6 +272,10 @@ public class MailManager {
             }
             bTaskRunning = false;
             TargetDeviceIDlist.clear();
+            if(mailJobEnum ==CommonParams.MailJobEnum.RECV_COMMAND)
+            {
+                GPSlocate.getInstance().releaseWakeLock();
+            }
         }
 
         private void receiveMail() {
