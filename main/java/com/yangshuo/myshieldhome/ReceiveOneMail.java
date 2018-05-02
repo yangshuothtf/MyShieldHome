@@ -352,6 +352,10 @@ public class ReceiveOneMail {
                 oldstorefile.delete();
                 storefile.renameTo(oldstorefile);
             }
+            else
+            {
+                storefile.delete();
+            }
         }
     }
 }
