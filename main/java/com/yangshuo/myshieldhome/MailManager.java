@@ -135,7 +135,7 @@ public class MailManager {
                 }
                 pendingListFile.exists();
             }
-            cleanMailbox();
+            cleanMailbox(bIsGPSinfoMail);
             bTaskRunning = false;
             super.onPostExecute(result);
         }
@@ -241,15 +241,14 @@ public class MailManager {
         private CommonParams.MailJobEnum  mailJobEnum;
         private List<String> TargetDeviceIDlist = new ArrayList<String>();
 
-        private boolean tmpIsFirstGPSinfoMail = true;//指定设备的最新邮件
-        private String strMailContent = "";// 存放邮件内容
+        private boolean bIsGPS = false;//是GPS定位邮件，需要检查是否有新邮件指令
         private boolean bIsLatestGPSmail = true;
-        public RecvMailTask(CommonParams.MailJobEnum  jobEnum) {
+        public RecvMailTask(CommonParams.MailJobEnum jobEnum) {
             TargetDeviceIDlist.clear();
             mailJobEnum = jobEnum;
             bTaskRunning = true;
         }
-        public RecvMailTask(CommonParams.MailJobEnum  jobEnum, String tmpDeviceID) {
+        public RecvMailTask(CommonParams.MailJobEnum jobEnum, String tmpDeviceID) {
             TargetDeviceIDlist.clear();
             //指定某些设备，逗号分割
             String[] strArray = tmpDeviceID.split(CommonParams.PATTERN_COMMA_SPLIT);
@@ -257,6 +256,12 @@ public class MailManager {
             {
                 TargetDeviceIDlist.add(strArray[i]);
             }
+            mailJobEnum = jobEnum;
+            bTaskRunning = true;
+        }
+        public RecvMailTask(CommonParams.MailJobEnum jobEnum, boolean tmpGPS) {
+            bIsGPS = tmpGPS;
+            TargetDeviceIDlist.clear();
             mailJobEnum = jobEnum;
             bTaskRunning = true;
         }
@@ -268,12 +273,14 @@ public class MailManager {
         }
         @Override
         protected void  onPostExecute(Boolean result) {
-            if (result == true) {
-            }
             bTaskRunning = false;
             TargetDeviceIDlist.clear();
-            if(mailJobEnum ==CommonParams.MailJobEnum.RECV_COMMAND)
+            if((mailJobEnum ==CommonParams.MailJobEnum.CLEAN_OUTBOX)&&(bIsGPS))
+//                if(mailJobEnum ==CommonParams.MailJobEnum.CLEAN_OUTBOX_GPS)
             {
+                if (result == true) {
+                    CfgParamMgr.getInstance().setGPSreportFlag();
+                }
                 GPSlocate.getInstance().releaseWakeLock();
             }
         }
@@ -512,10 +519,10 @@ public class MailManager {
         }
     }
 
-    private void cleanMailbox() {
+    private void cleanMailbox(boolean bIsGPS) {
         /*TODO:139邮箱有问题：邮件->常规设置->邮箱协议设置->去掉 SMTP发信后保存到"已发送"文件夹，保存设置，之后还会出现
           而且，139邮箱和139邮箱中心是两个入口，设置项目不同，看来是有问题 */
-        RecvMailTask recmailTask = new RecvMailTask(CommonParams.MailJobEnum.CLEAN_OUTBOX);
+        RecvMailTask recmailTask = new RecvMailTask(CommonParams.MailJobEnum.CLEAN_OUTBOX, true);
         recmailTask.execute();
     }
     public void receiveCommandMail() {

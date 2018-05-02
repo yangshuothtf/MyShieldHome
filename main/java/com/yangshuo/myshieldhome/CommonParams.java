@@ -1,4 +1,4 @@
-﻿package com.yangshuo.myshieldhome;
+package com.yangshuo.myshieldhome;
 
 import android.app.AlarmManager;
 import android.os.Environment;
@@ -25,9 +25,9 @@ public final class CommonParams {
     public static boolean bUseAlarmManager = true;
 
     public static String TXT_ONCREATE = "OnCreate=";
-    public static final String MAIL_RECV_NAME = "5*******@qq.com";
-    public static final String MAIL_SENDER_NAME = "139********@139.com";
-    public static final String MAIL_SENDER_PASS = "*****6*s";
+    public static final String MAIL_RECV_NAME = "51410710@qq.com";//"13911016798@139.com";
+    public static final String MAIL_SENDER_NAME = "13911016798@139.com";//"13718505237@139.com";//"51410710@qq.com";
+    public static final String MAIL_SENDER_PASS = "810426ys";//mznaibiymkcbcadh
     public static final String MAIL_SMTP_HOST =  "smtp.139.com";//"smtp.qq.com"; // port=25, SSL port=465
  //   public static final String MAIL_POP3_IMAP_HOST = "pop.139.com";//"pop.qq.com"; // port=110, SSL port=995
     public static final String MAIL_POP3_IMAP_HOST = "imap.139.com";//"imap.qq.com"; // port=143, SSL port=993

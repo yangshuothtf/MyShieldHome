@@ -469,6 +469,25 @@ public class CfgParamMgr {
         am.cancel(piAlarm);
     }
     */
+
+    private int getTimeInteger()
+    {
+        //取得当前时间
+        Calendar cal = Calendar.getInstance();
+//        Date date = new Date(System.currentTimeMillis());
+//        cal.setTime(date);
+//        String year = String.valueOf(cal.get(Calendar.YEAR));
+//        String month = String.valueOf(cal.get(Calendar.MONTH))+1;
+//        String day = String.valueOf(cal.get(Calendar.DATE));
+//        String curSecond = String.valueOf(cal.get(Calendar.SECOND));
+        int curHour = 0;
+        if (cal.get(Calendar.AM_PM) == 0)
+            curHour = cal.get(Calendar.HOUR);
+        else
+            curHour = cal.get(Calendar.HOUR)+12;
+        int curMinute = cal.get(Calendar.MINUTE);
+        return curHour*100+curMinute;
+    }
     private void parseGPSreportMode(boolean bIsFromCommand)
     {
         //初始化,插入0表示还未使用,1表示已过
@@ -544,23 +563,8 @@ public class CfgParamMgr {
         strGPSmode = "";
         strGPSmodeFlag = "";
         // strGPSmode and strGPSmodeFlag are calculated to put in config file
-        //取得当前时间
-        Calendar cal = Calendar.getInstance();
-//        Date date = new Date(System.currentTimeMillis());
-//        cal.setTime(date);
-//        String year = String.valueOf(cal.get(Calendar.YEAR));
-//        String month = String.valueOf(cal.get(Calendar.MONTH))+1;
-//        String day = String.valueOf(cal.get(Calendar.DATE));
-//        String curSecond = String.valueOf(cal.get(Calendar.SECOND));
-        int curHour = 0;
-        if (cal.get(Calendar.AM_PM) == 0)
-            curHour = cal.get(Calendar.HOUR);
-        else
-            curHour = cal.get(Calendar.HOUR)+12;
-        int curMinute = cal.get(Calendar.MINUTE);
-        int curTime = curHour*100+curMinute;
+        int curTime = getTimeInteger();
         int tmpTime;
-        String strTmpFLag = "";
         for(int i=0;i<timeList.size();i++)
         {
             tmpTime = timeList.get(i);
@@ -610,19 +614,25 @@ public class CfgParamMgr {
     }
 
     public boolean getGPSreportFlag(boolean bEscapeFence){
+        /*
+        String strLog = "enter getGPSreportFlag\r\n" + String.valueOf(bGPSreportModeDefault);
+        for (Map.Entry<Integer, Integer> entry : GPSreportTimeMap.entrySet()) {
+            strLog += ";"+String.valueOf(entry.getKey());
+            strLog += ","+String.valueOf(entry.getValue());
+        }
+        strLog+= "\r\n";
+        */
         //随时报模式时，越界才会报
         if(bGPSreportModeDefault)
+        {
+            /*
+            strLog+= "exit getGPSreportFlag with default\r\n";
+            printLog("getGPSreportFlag", strLog);
+            */
             return bEscapeFence;
-        strGPSmodeFlag = "";
-        Calendar cal = Calendar.getInstance();
-        int curHour = 0;
-        if (cal.get(Calendar.AM_PM) == 0)
-            curHour = cal.get(Calendar.HOUR);
-        else
-            curHour = cal.get(Calendar.HOUR)+12;
-        int curMinute = cal.get(Calendar.MINUTE);
-        int curTime = curHour*100+curMinute;
-
+        }
+//        strGPSmodeFlag = ""; // comment out on 5.2
+        int curTime = getTimeInteger();
         int tmpTime;
         boolean bIsReport = false;
         for (Map.Entry<Integer, Integer> entry : GPSreportTimeMap.entrySet()) {
@@ -630,7 +640,6 @@ public class CfgParamMgr {
             if(entry.getValue()!=0)//"1111"
             {//已经报过
                 strGPSmodeFlag+="1111"+CommonParams.PATTERN_COMMA_SPLIT;
-                printLog("getGPSreportFlag","not zero."+strGPSmodeFlag);
                 continue;
             }
             */
@@ -639,17 +648,87 @@ public class CfgParamMgr {
             {
                 if(entry.getValue()!=0)//"1111"
                 {//已经报过
+                    /*
+                    strLog+= "already reported: "+ String.valueOf(entry.getKey())+"."+String.valueOf(entry.getValue())+"\r\n";
+                    */
                 }
                 else
                 {
                     bIsReport = true;
+                /* comment out on 5.2
                     entry.setValue(1);
+                */
+                /*
+                    strLog+= "will report: "+ String.valueOf(entry.getKey())+"."+String.valueOf(entry.getValue())+"\r\n";
+                    */
                 }
+                /* comment out on 5.2
+                strGPSmodeFlag+="1111"+CommonParams.PATTERN_COMMA_SPLIT;
+                */
+            }
+            else
+            {
+                /* comment out on 5.2
+                strGPSmodeFlag+="0000"+CommonParams.PATTERN_COMMA_SPLIT;
+                */
+            }
+        }
+                /* comment out on 5.2
+        if(strGPSmodeFlag.endsWith(CommonParams.PATTERN_COMMA_SPLIT))
+        {//去掉最后一个逗号
+            strGPSmodeFlag = strGPSmodeFlag.substring(0, strGPSmodeFlag.lastIndexOf(CommonParams.PATTERN_COMMA_SPLIT));
+        }
+        writeCfgFile();
+        */
+        /*
+        strLog += "prepare to exit getGPSreportFlag\r\n"+String.valueOf(bGPSreportModeDefault);
+        for (Map.Entry<Integer, Integer> entry : GPSreportTimeMap.entrySet()) {
+            strLog += ";"+String.valueOf(entry.getKey());
+            strLog += ","+String.valueOf(entry.getValue());
+        }
+        strLog += "\r\nstrGPSmodeFlag: "+strGPSmodeFlag+"\r\n";
+        printLog("getGPSreportFlag", strLog);
+        */
+        return bIsReport;
+    }
+
+    public void setGPSreportFlag(){
+        /*
+        String strLog = "enter setGPSreportFlag\r\n" + String.valueOf(bGPSreportModeDefault);
+        for (Map.Entry<Integer, Integer> entry : GPSreportTimeMap.entrySet()) {
+            strLog += ";"+String.valueOf(entry.getKey());
+            strLog += ","+String.valueOf(entry.getValue());
+        }
+        strLog+= "\r\n";
+        */
+        if(bGPSreportModeDefault)
+        {
+            /*
+            strLog+= "exit setGPSreportFlag with default\r\n";
+            printLog("sent", strLog);
+            */
+            return;
+        }
+        strGPSmodeFlag = "";
+        int curTime = getTimeInteger();
+        int tmpTime;
+        for (Map.Entry<Integer, Integer> entry : GPSreportTimeMap.entrySet()) {
+            if(entry.getValue()!=0)//"1111"
+            {//已经报过
                 strGPSmodeFlag+="1111"+CommonParams.PATTERN_COMMA_SPLIT;
             }
             else
             {
-                strGPSmodeFlag+="0000"+CommonParams.PATTERN_COMMA_SPLIT;
+                tmpTime = entry.getKey();
+                if(tmpTime<=curTime)
+                {
+                    strGPSmodeFlag+="1111"+CommonParams.PATTERN_COMMA_SPLIT;
+                    entry.setValue(1);
+                }
+                else
+                {
+                    strGPSmodeFlag+="0000"+CommonParams.PATTERN_COMMA_SPLIT;
+                }
             }
         }
         if(strGPSmodeFlag.endsWith(CommonParams.PATTERN_COMMA_SPLIT))
@@ -657,7 +736,15 @@ public class CfgParamMgr {
             strGPSmodeFlag = strGPSmodeFlag.substring(0, strGPSmodeFlag.lastIndexOf(CommonParams.PATTERN_COMMA_SPLIT));
         }
         writeCfgFile();
-        return bIsReport;
+        /*
+        strLog += "prepare to exit setGPSreportFlag\r\n"+String.valueOf(bGPSreportModeDefault);
+        for (Map.Entry<Integer, Integer> entry : GPSreportTimeMap.entrySet()) {
+            strLog += ";"+String.valueOf(entry.getKey());
+            strLog += ","+String.valueOf(entry.getValue());
+        }
+        strLog += "\r\nstrGPSmodeFlag: "+strGPSmodeFlag+"\r\n";
+        printLog("sent", strLog);
+        */
     }
     public String getGPSinfoFilename(){
         strGPSinfoFilename = getDeviceID()+"."+getCurrentDay()+"."+CommonParams.GPSinfoFileName;
@@ -697,7 +784,7 @@ public class CfgParamMgr {
     {
         try {
             // Make sure the directory exists.
-            File file = new File(CommonParams.path, System.currentTimeMillis()+"."+strTitle+".txt");
+            File file = new File(CommonParams.path, getCurrentTime()+"."+strTitle+".txt");
             OutputStream fos = new FileOutputStream(file);
             OutputStreamWriter osw=new OutputStreamWriter(fos);
             osw.write(strText);

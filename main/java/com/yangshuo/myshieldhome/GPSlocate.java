@@ -133,7 +133,7 @@ public class GPSlocate implements AMapLocationListener{
             //解析定位结果，
             String result = sb.toString();
             /*检测围栏状态*/
-            //这里读配置文件，只是让时间表可以有更新的机会，否则会一直用内存里的时间表
+            //这里读配置文件，只是为了调试时，可以让时间表有更新的机会，否则会一直用内存里的时间表
             CfgParamMgr.getInstance().readCfgFile();//读进状态
             boolean bEscapeFence = checkFence(amapLocation.getLongitude(), amapLocation.getLatitude());
             if(bEscapeFence) {
