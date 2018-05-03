@@ -338,82 +338,81 @@ public class CfgParamMgr {
     }
 
     public void readCfgFile(){
-        if(reportLongitude!=CommonParams.INVALID_LOCATION)
+        if(reportLongitude==CommonParams.INVALID_LOCATION)
         {
-            return;
-        }
-        try {
-            File cfgFile=new File(CommonParams.path,CommonParams.cfgFileName);
-            if(cfgFile.exists()==false)
-            {
-                writeCfgFile();
-                return;
-            }
+            try {
+                File cfgFile=new File(CommonParams.path,CommonParams.cfgFileName);
+                if(cfgFile.exists()==false)
+                {
+                    writeCfgFile();
+                    return;
+                }
 
-            FileInputStream fis=new FileInputStream(cfgFile);
-            InputStreamReader isr=new InputStreamReader(fis, "UTF-8");
-            BufferedReader bfr=new BufferedReader(isr);
-            String in="";
-            while((in=bfr.readLine())!=null)//readLine不会读出\r\n
-            {
-                if(in.contains(CommonParams.PARAM_TYPE))
+                FileInputStream fis=new FileInputStream(cfgFile);
+                InputStreamReader isr=new InputStreamReader(fis, "UTF-8");
+                BufferedReader bfr=new BufferedReader(isr);
+                String in="";
+                while((in=bfr.readLine())!=null)//readLine不会读出\r\n
                 {
-                    strMachineType = in.substring(in.indexOf("=")+1);
-                }
-                else if(in.contains(CommonParams.PARAM_NAME))
-                {
-                    strMachineName = in.substring(in.indexOf("=")+1);
-                }
-                else if(in.contains(CommonParams.PARAM_SYSRECORDER))
-                {
-                    if(in.contains("true"))
+                    if(in.contains(CommonParams.PARAM_TYPE))
                     {
-                        bUseSysRecorder = true;
+                        strMachineType = in.substring(in.indexOf("=")+1);
                     }
-                    else
+                    else if(in.contains(CommonParams.PARAM_NAME))
                     {
-                        bUseSysRecorder = false;
+                        strMachineName = in.substring(in.indexOf("=")+1);
                     }
-                }
-                else if(in.contains(CommonParams.PARAM_GPSSERVICE))
-                {
-                    if(in.contains("true"))
+                    else if(in.contains(CommonParams.PARAM_SYSRECORDER))
                     {
-                        bStartGPS = true;
+                        if(in.contains("true"))
+                        {
+                            bUseSysRecorder = true;
+                        }
+                        else
+                        {
+                            bUseSysRecorder = false;
+                        }
                     }
-                    else
+                    else if(in.contains(CommonParams.PARAM_GPSSERVICE))
                     {
-                        bStartGPS = false;
+                        if(in.contains("true"))
+                        {
+                            bStartGPS = true;
+                        }
+                        else
+                        {
+                            bStartGPS = false;
+                        }
+                    }
+                    else if(in.contains(CommonParams.PARAM_GPS_INTERVAL))
+                    {
+                        iGPSinterval = Integer.parseInt(in.substring(in.indexOf("=")+1));
+                    }
+                    else if(in.contains(CommonParams.PARAM_GPS_MODE))
+                    {
+                        strGPSmode = in.substring(in.indexOf("=")+1);
+                    }
+                    else if(in.contains(CommonParams.PARAM_GPS_MODE_FLAG))
+                    {
+                        strGPSmodeFlag = in.substring(in.indexOf("=")+1);
+                    }
+                    else if(in.contains(CommonParams.PARAM_REPORT_LATITUDE))
+                    {
+                        reportLatitude = Double.valueOf(in.substring(in.indexOf("=")+1));
+                    }
+                    else if(in.contains(CommonParams.PARAM_REPORT_LONGITUDE))
+                    {
+                        reportLongitude = Double.valueOf(in.substring(in.indexOf("=")+1));
                     }
                 }
-                else if(in.contains(CommonParams.PARAM_GPS_INTERVAL))
-                {
-                    iGPSinterval = Integer.parseInt(in.substring(in.indexOf("=")+1));
-                }
-                else if(in.contains(CommonParams.PARAM_GPS_MODE))
-                {
-                    strGPSmode = in.substring(in.indexOf("=")+1);
-                }
-                else if(in.contains(CommonParams.PARAM_GPS_MODE_FLAG))
-                {
-                    strGPSmodeFlag = in.substring(in.indexOf("=")+1);
-                    parseGPSreportMode(false);
-                }
-                else if(in.contains(CommonParams.PARAM_REPORT_LATITUDE))
-                {
-                    reportLatitude = Double.valueOf(in.substring(in.indexOf("=")+1));
-                }
-                else if(in.contains(CommonParams.PARAM_REPORT_LONGITUDE))
-                {
-                    reportLongitude = Double.valueOf(in.substring(in.indexOf("=")+1));
-                }
+                isr.close();
+                fis.close();
+            } catch (IOException e) {
+                printErrorLog(e);
             }
-            isr.close();
-            fis.close();
-        } catch (IOException e) {
-            printErrorLog(e);
         }
         //此时strGPSmode,strGPSmodeFlag,GPSreportTimeMap已经和配置文件不一致，需要保存
+        parseGPSreportMode(false);
         writeCfgFile();
     }
 
