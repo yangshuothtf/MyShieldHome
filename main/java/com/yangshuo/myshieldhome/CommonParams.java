@@ -34,6 +34,7 @@ public final class CommonParams {
     //都加到MailManager的receiveMail()里面
     public static final String MAIL_TITLE_NOTIFY = "上线.";
     public static final String MAIL_TITLE_RECORD = "电话录音";
+    public static final String MAIL_TITLE_HEARTBEAT = "HEARTBEAT.";
     public static final String MAIL_TITLE_COMMAND = "电话指令.ID.";//电话指令.ID.1234567890.UPDATE.XXXX
     public static final String MAIL_TITLE_COMMAND_RECV = "确认收到.ID.";//确认收到.电话指令.ID.1234567890.UPDATE.XXXX
     public static final String MAIL_TITLE_GPS_LOCATE_SUCCEED = "定位成功.";

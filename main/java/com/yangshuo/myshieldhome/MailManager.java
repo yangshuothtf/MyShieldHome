@@ -372,8 +372,8 @@ public class MailManager {
                     //保留每日最新定位邮件,保留含多日的定位邮件
                     if(mailJobEnum ==CommonParams.MailJobEnum.CLEAN_OUTBOX)
                     {
-                        if(subject.contains(CommonParams.MAIL_TITLE_NOTIFY)||subject.contains(CommonParams.MAIL_TITLE_RECORD)||subject.contains(CommonParams.MAIL_TITLE_COMMAND_RECV)
-                                ||subject.contains(CommonParams.MAIL_TITLE_GPS_LOCATE_FAILED))
+                        if(subject.contains(CommonParams.MAIL_TITLE_NOTIFY)||subject.contains(CommonParams.MAIL_TITLE_RECORD)||subject.contains(CommonParams.MAIL_TITLE_HEARTBEAT)
+                                ||subject.contains(CommonParams.MAIL_TITLE_COMMAND_RECV)||subject.contains(CommonParams.MAIL_TITLE_GPS_LOCATE_FAILED))
                         {
                             bDeleteFlag = true;
                         }
@@ -388,7 +388,7 @@ public class MailManager {
 //                                    strCurDate = strDate;
 //                                    curDate = tmpDate;
 //                                    curCalendar.setTime(tmpDate);
-//                                    bIsLatestGPSmail = false;
+                                    bIsLatestGPSmail = false;
                                 }
                                 else
                                 {
@@ -479,7 +479,15 @@ public class MailManager {
                                         }
 //                                        tmpIsFirstGPSinfoMail=false;
                                     }
-                                    bDeleteFlag = true;
+                                    if(bIsLatestGPSmail) {
+                                        //当日最新邮件
+                                        bIsLatestGPSmail = false;
+                                    }
+                                    else
+                                    {
+                                        bDeleteFlag = true;
+                                    }
+//                                    bDeleteFlag = true;
                                 }
                             }
                         }

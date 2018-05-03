@@ -413,6 +413,8 @@ public class CfgParamMgr {
         } catch (IOException e) {
             printErrorLog(e);
         }
+        //此时strGPSmode,strGPSmodeFlag,GPSreportTimeMap已经和配置文件不一致，需要保存
+        writeCfgFile();
     }
 
     public void initContext(Context context) {
@@ -611,6 +613,7 @@ public class CfgParamMgr {
         {//去掉最后一个逗号
             strGPSmodeFlag = strGPSmodeFlag.substring(0, strGPSmodeFlag.lastIndexOf(CommonParams.PATTERN_COMMA_SPLIT));
         }
+        //此时strGPSmode,strGPSmodeFlag,GPSreportTimeMap已经和配置文件不一致，需要保存
     }
 
     public boolean getGPSreportFlag(boolean bEscapeFence){
