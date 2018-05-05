@@ -1,4 +1,4 @@
-﻿package com.yangshuo.myshieldhome;
+package com.yangshuo.myshieldhome;
 
 import android.Manifest;
 import android.app.AlarmManager;
@@ -221,11 +221,15 @@ public class MainActivity extends AppCompatActivity {
 //                com.amap.api.maps.offlinemap.OfflineMapActivity.class));
     }
     public void viewMapLeMax(View view) {
+        /*
         Intent intent = new Intent(MainActivity.this, MapActivity.class);
         Bundle paramBundle = new Bundle();
         paramBundle.putString(CommonParams.PARAM_NAME, "868062022152970");
         intent.putExtras(paramBundle);
         startActivity(intent);
+        */
+        PhoneRecordProcess tmpProcess = new PhoneRecordProcess();
+        tmpProcess.init(this);
     }
 
     public void start(View view){
@@ -318,7 +322,7 @@ public class MainActivity extends AppCompatActivity {
             {
                 strHello = "Mail process start";
                 txtHello.setText(strHello);
-                MailManager.getInstance().sendMail("HEARTBEAT.设备ID:"+CfgParamMgr.getInstance().getDeviceID()+"."+CfgParamMgr.getInstance().getMachineName(), "Heartbeat sent");
+                MailManager.getInstance().sendMail(CommonParams.MAIL_TITLE_HEARTBEAT+"设备ID:"+CfgParamMgr.getInstance().getDeviceID()+"."+CfgParamMgr.getInstance().getMachineName(), "Heartbeat sent");
                 MailManager.getInstance().receiveCommandMail();
                 strHello = "Mail task finished";
                 txtHello.setText(strHello);
@@ -364,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 }
-//TODO: signed key 密码: *****6     http://lbs.amap.com/dev/key/app
+//TODO: signed key 密码: 810426     http://lbs.amap.com/dev/key/app
 /**
  * 1.装好之后要立即运行，才会创建图标，并开启服务
  * 2.设置->隐私管理->给自启动权限
