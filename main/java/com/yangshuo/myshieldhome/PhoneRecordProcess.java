@@ -109,6 +109,14 @@ public class PhoneRecordProcess {
             Log.d(TAG, "error:" + speechError.getPlainDescription(true));
 //            showTip(speechError.getPlainDescription(true));
             printLog("error",speechError.getPlainDescription(true));
+            if(mSpeech==null)
+            {
+                printLog("error.SpeechUtilityNull", "null");
+            }
+            if(mIat==null)
+            {
+                printLog("error.mIatNull", "null");
+            }
             releaseWakeLock();
         }
         //扩展用接口
@@ -153,14 +161,13 @@ public class PhoneRecordProcess {
         }
         setParam();
 
-/*        try {
+        try {
             // Make sure the directory exists.
             outputFile = new File(CommonParams.path, "1.wav");
             outputfos = new FileOutputStream(outputFile);
             bos = new BufferedOutputStream(outputfos);
         } catch (IOException e) {
         }
-*/
         startDecode("1.amr");
     }
 
@@ -223,8 +230,14 @@ public class PhoneRecordProcess {
         audioDecode.setOnCompleteListener(new AudioDecode.OnCompleteListener() {
             @Override
             public void completed(final ArrayList<byte[]> pcmData) {
-                printLog("转换结束", "");
                 if(pcmData!=null){
+                    printLog("转换结束", "");
+                    int ret = mIat.startListening(mRecognizerListener);
+                    if (ret != ErrorCode.SUCCESS) {
+                        //        showTip("识别失败,错误码：" + ret);
+                        printLog("识别失败", String.valueOf(ret));
+                    } else {
+                    }
                     //写入音频文件数据，数据格式必须是采样率为8KHz或16KHz（本地识别只支持16K采样率，云端都支持），位长16bit，单声道的wav或者pcm
                     //必须要先保存到本地，才能被讯飞识别
                     //为防止数据较长，多次写入,把一次写入的音频，限制到 64K 以下，然后循环的调用wirteAudio，直到把音频写完为止
@@ -232,18 +245,39 @@ public class PhoneRecordProcess {
                     for (byte[] data : pcmData){
 //                        mIat.writeAudio(data, 0, data.length);
                         //写32或者64识别出的效果不一致,直接320则报网络错误
-                        ArrayList<byte[]> arrayAudioData = FucUtil.splitBuffer(data,data.length,32);
+/*                        ArrayList<byte[]> arrayAudioData = FucUtil.splitBuffer(data,data.length,32);
                         for(int i=0;i<arrayAudioData.size();i++)
                         {
                             mIat.writeAudio(arrayAudioData.get(i), 0, arrayAudioData.get(i).length);
                         }
-/*                        try
+                        */
+                        try
                         {
                             bos.write(data);
                         } catch (IOException e) {
                         }
-                        */
                     }
+
+/*                    int startIdx = 0;
+                    int sndTime = 0;
+                    byte[] putData = new byte[64000];
+                    for(int i=0;i<pcmData.size();i++)
+                    {
+                        byte[] data = pcmData.get(i);
+                        for(int j=0;j<data.length;j++)
+                        {
+                            putData[startIdx+j] = data[j];
+                        }
+                        startIdx+=data.length;
+                        if(startIdx>=63000)
+                        {
+                            mIat.writeAudio(putData, 0, startIdx);
+                            startIdx = 0;
+                            sndTime++;
+                        }
+                    }
+                    printLog("write结束"+String.valueOf(sndTime), "");
+*/
 //                    Log.d("-----------stop",System.currentTimeMillis()+"");
                     mIat.stopListening();
                 }else{
@@ -251,15 +285,15 @@ public class PhoneRecordProcess {
 //                    Log.d(TAG,"--->读取音频流失败");
                     printLog("读取数据失败", "");
                 }
-/*                try
+                try
                 {
                     bos.flush();
                     bos.close();
                     outputfos.close();
                 } catch (IOException e) {
                 }
-                */
                 audioDecode.release();
+                iatFun();
             }
         });
         audioDecode.startAsync();
@@ -268,7 +302,13 @@ public class PhoneRecordProcess {
      * 讯飞
      */
     private void iatFun(){
-        byte[] audioData = FucUtil.readAudioFile(mContext, "official.wav");
+        int ret = mIat.startListening(mRecognizerListener);
+        if (ret != ErrorCode.SUCCESS) {
+            //        showTip("识别失败,错误码：" + ret);
+            printLog("识别失败", String.valueOf(ret));
+        } else {
+        }
+        byte[] audioData = FucUtil.readAudioFile(mContext, "1.wav");
         if (null != audioData) {
 //            showTip("开始识别");
             printLog("IAT开始识别", "");
@@ -277,7 +317,7 @@ public class PhoneRecordProcess {
             // 注：当音频过长，静音部分时长超过VAD_EOS将导致静音后面部分不能识别。
             // 音频切分方法：FucUtil.splitBuffer(byte[] buffer,int length,int spsize);
 //            mIat.writeAudio(audioData, 0, audioData.length);
-            ArrayList<byte[]> arrayAudioData = FucUtil.splitBuffer(audioData,audioData.length,64);
+            ArrayList<byte[]> arrayAudioData = FucUtil.splitBuffer(audioData,audioData.length,64000);
             for(int i=0;i<arrayAudioData.size();i++)
             {
                 mIat.writeAudio(arrayAudioData.get(i), 0, arrayAudioData.get(i).length);
@@ -334,6 +374,7 @@ public class PhoneRecordProcess {
         // -vn 不处理视频 -vcodec 设定视频编解码器，未设定时则使用与输入流相同的编解码器
         // 音频参数：
         // -ar 设定采样率 -ac 设定声音的Channel数 -acodec 设定声音编解码器，未设定时则使用与输入流相同的编解码器 -an 不处理音频
+        /*
         int ret = mIat.startListening(mRecognizerListener);
         if (ret != ErrorCode.SUCCESS) {
             //        showTip("识别失败,错误码：" + ret);
@@ -342,6 +383,8 @@ public class PhoneRecordProcess {
 //            iatFun();//讯飞demo里面的方法
             audioDecodeFun(audioPath);
         }
+        */
+        audioDecodeFun(audioPath);
     }
     private void printLog(String strTitle, String strText)
     {
