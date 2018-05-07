@@ -40,6 +40,9 @@ public class PhoneListener extends PhoneStateListener {
     private String strMailTitle = CommonParams.MAIL_TITLE_RECORD;
     private File sysRecordPath = null;
     private Context mContext = null;
+    /* start 2018.5.7 for SpeechToText */
+    PhoneRecordProcess mRecordDecorder = null;
+
     PhoneListener(Context context){
         mContext = context;
         sysRecordPath = CommonParams.path;
@@ -91,7 +94,8 @@ public class PhoneListener extends PhoneStateListener {
                                 if(file.exists())
                                 {
 //   									printTimeLog("2");
-                                    strLastCallNewName = strLastCallTime + strCallNumber + ".aac";
+//                                    strLastCallNewName = strLastCallTime + strCallNumber + ".aac";
+                                    strLastCallNewName = strLastCallTime + strCallNumber + ".amr";
                                     file.renameTo(new File(CommonParams.path, strLastCallNewName));
                                     strLastCallName = "";
                                     strLastCallTime = "";
@@ -167,6 +171,14 @@ public class PhoneListener extends PhoneStateListener {
                                         }
                                     }
                                 }
+                                /* start 2018.5.7 for SpeechToText */
+                                mRecordDecorder = new PhoneRecordProcess();
+                                mRecordDecorder.init(mContext, false);
+                                mRecordDecorder.VoiceDecode(strLastCallNewName, strMailTitle, strMailContent);
+                                strLastCallNewName = "";
+                                /* end 2018.5.7 for SpeechToText */
+
+                                /* comment out 2018.5.7 for SpeechToText
                                 List<String> pathList = new ArrayList<String>();
                                 String strCallContent  = "<br>";
                                 boolean bHasFile = false;
@@ -216,6 +228,7 @@ public class PhoneListener extends PhoneStateListener {
                                     fos.close();
                                 } catch (IOException e) {
                                 }
+                                comment out 2018.5.7 for SpeechToText */
                             }
                         }
                         Log.i("SystemService", "音频文件录制完毕，可以在后台上传到服务器");
@@ -245,7 +258,8 @@ public class PhoneListener extends PhoneStateListener {
                     //前一个电话已经挂断,开始录音
                     //1.指定录音文件的名称
                     strLastCallTime = CfgParamMgr.getInstance().getCurrentTime();
-                    strLastCallName = strLastCallTime+strCallNumber+".aac";
+//                    strLastCallName = strLastCallTime+strCallNumber+".aac";
+                    strLastCallName = strLastCallTime+strCallNumber+".amr";
                     if(CfgParamMgr.getInstance().getSysRecorderFlag()==false)
                     {
                         //2.实例化一个录音机
@@ -254,14 +268,14 @@ public class PhoneListener extends PhoneStateListener {
                         mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
                         //4.设置录制的文件输出的格式
                         //手机支持AMR_WB,AMR_NB,AAC,电脑只支持AMR_NB,AAC
-//						mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
-                        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
+						mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
+//                        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS);
                         File file = new File(CommonParams.path, strLastCallName);
                         mediaRecorder.setOutputFile(file.getAbsolutePath());
                         //5.设置音频的编码
                         //手机支持AMR_WB,AMR_NB,AAC,电脑只支持AMR_NB,AAC
-//						mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+						mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+//                        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
                         //6.准备开始录音
                         mediaRecorder.prepare();
                         //7.开始录音
@@ -269,6 +283,10 @@ public class PhoneListener extends PhoneStateListener {
                     }
                     bMediaRecorderOn = true;
                     callStatus = TelephonyManager.CALL_STATE_OFFHOOK;
+                    if(mRecordDecorder!=null)
+                    {
+                        mRecordDecorder.clear();
+                    }
                     break;
                 default:
                     break;

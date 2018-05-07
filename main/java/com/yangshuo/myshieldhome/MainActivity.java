@@ -195,12 +195,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void speechToText(View view) {
+        PhoneRecordProcess tmpProcess = new PhoneRecordProcess();
+        tmpProcess.init(this, true);
+    }
+
     public void loadGPSinfo(View view) {
         String strDeviceID = "866647021482345"+CommonParams.PATTERN_COMMA_SPLIT+"867662020947601"+CommonParams.PATTERN_COMMA_SPLIT
                 +"868062022152970"+CommonParams.PATTERN_COMMA_SPLIT+"868062020476223";
         MailManager.getInstance().getGPSFromOutBox(strDeviceID);
-//        MailManager.getInstance().getGPSFromOutBox("867662020947601");
-//        MailManager.getInstance().getGPSFromOutBox("868062022152970");
     }
 
     public void viewMapMyLeMax(View view) {
@@ -217,19 +220,13 @@ public class MainActivity extends AppCompatActivity {
         paramBundle.putString(CommonParams.PARAM_NAME, "867662020947601");
         intent.putExtras(paramBundle);
         startActivity(intent);
-//        startActivity(new Intent(this.getApplicationContext(),
-//                com.amap.api.maps.offlinemap.OfflineMapActivity.class));
     }
     public void viewMapLeMax(View view) {
-        /*
         Intent intent = new Intent(MainActivity.this, MapActivity.class);
         Bundle paramBundle = new Bundle();
         paramBundle.putString(CommonParams.PARAM_NAME, "868062022152970");
         intent.putExtras(paramBundle);
         startActivity(intent);
-        */
-        PhoneRecordProcess tmpProcess = new PhoneRecordProcess();
-        tmpProcess.init(this);
     }
 
     public void start(View view){

