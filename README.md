@@ -21,11 +21,11 @@ Feature list:<br>
 5. Power saving, no GPS enable needed.<br>
    5.1 GPS locate trigger by alarmManager, every 10 minutes --done, 2018.4.12<br>
    5.2 GPS locate when diff more than 300 meters.<br>
+6. Speech-To-Text by XunFei SDK.  -- done, 2018.5.7<br>
 To do list:<br>
-1. Speech to text for call recorded.<br>
-2. Accessibility for weChat<br>
-3. Auto-update in background<br>
-4. More config options like mailbox via command<br>
-5. Blacklist for fraud calls.<br>
-6. Bluetooth<br>
-7. Tensorflow<br>
+1. Accessibility for weChat<br>
+2. Auto-update in background<br>
+3. More config options like mailbox via command<br>
+4. Blacklist for fraud calls.<br>
+5. Bluetooth<br>
+6. Tensorflow<br>
