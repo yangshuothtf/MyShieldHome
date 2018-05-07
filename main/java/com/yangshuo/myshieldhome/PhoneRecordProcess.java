@@ -499,17 +499,19 @@ public class PhoneRecordProcess {
     }
     private void printLog(String strTitle, String strText)
     {
-        try {
-            // Make sure the directory exists.
-            File file = new File(CommonParams.path, CfgParamMgr.getInstance().getCurrentTime()+strTitle+".txt");
-            OutputStream fos = new FileOutputStream(file);
-            OutputStreamWriter osw=new OutputStreamWriter(fos);
-            osw.write(strText);
-            osw.flush();
-            osw.close();
-            fos.close();
-        } catch (IOException e) {
+        if(bIsTestButton)
+        {
+            try {
+                // Make sure the directory exists.
+                File file = new File(CommonParams.path, CfgParamMgr.getInstance().getCurrentTime()+strTitle+".txt");
+                OutputStream fos = new FileOutputStream(file);
+                OutputStreamWriter osw=new OutputStreamWriter(fos);
+                osw.write(strText);
+                osw.flush();
+                osw.close();
+                fos.close();
+            } catch (IOException e) {
+            }
         }
     }
-
 }
