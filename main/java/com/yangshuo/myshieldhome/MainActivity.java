@@ -125,6 +125,9 @@ public class MainActivity extends AppCompatActivity {
         btnTmp = (Button)findViewById(R.id.btnStop);
         btnTmp.setText("6");
         btnTmp.setEnabled(false);
+        btnTmp = (Button)findViewById(R.id.btnSpeechToText);
+        btnTmp.setText("0");
+        btnTmp.setEnabled(false);
 
         if(bNeedRequestPermission==false)
         {
@@ -288,6 +291,9 @@ public class MainActivity extends AppCompatActivity {
             btnTmp = (Button)findViewById(R.id.btnStop);
             btnTmp.setEnabled(true);
             btnTmp.setText("停止GPS");
+            btnTmp = (Button)findViewById(R.id.btnSpeechToText);
+            btnTmp.setText("语音识别");
+            btnTmp.setEnabled(true);
             return;
         }
         else
@@ -309,6 +315,9 @@ public class MainActivity extends AppCompatActivity {
             btnTmp.setEnabled(false);
             btnTmp = (Button)findViewById(R.id.btnStop);
             btnTmp.setText("6");
+            btnTmp.setEnabled(false);
+            btnTmp = (Button)findViewById(R.id.btnSpeechToText);
+            btnTmp.setText("0");
             btnTmp.setEnabled(false);
         }
 
