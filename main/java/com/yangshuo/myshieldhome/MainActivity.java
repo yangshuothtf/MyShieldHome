@@ -374,7 +374,7 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 }
-//TODO: signed key 密码: 810426     http://lbs.amap.com/dev/key/app
+//TODO: signed key 密码: ******     http://lbs.amap.com/dev/key/app
 /**
  * 1.装好之后要立即运行，才会创建图标，并开启服务
  * 2.设置->隐私管理->给自启动权限
