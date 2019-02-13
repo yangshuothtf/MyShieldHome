@@ -189,8 +189,6 @@ public class MainActivity extends AppCompatActivity {
             txtHello.setText(strHello);
             Intent intent = new Intent(this,MyShieldService.class);
             Bundle paramBundle = new Bundle();
-//            paramBundle.putString(CommonParams.PARAM_TYPE, CfgParamMgr.getInstance().getMachineType());
-//            paramBundle.putBoolean(CommonParams.PARAM_SYSRECORDER,CfgParamMgr.getInstance().getSysRecorderFlag());
             paramBundle.putBoolean(CommonParams.TXT_ONCREATE,false);
             intent.putExtras(paramBundle);
             startService(intent);
@@ -342,17 +340,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     protected void onResume(){
-//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        Date date = new Date(System.currentTimeMillis());
-//        txtHello.setText("定位重启onResume："+df.format(date));
-//        MailManager.getInstance().sendMail("定位重启onResume："+df.format(date), "XXXX");
         super.onResume();
     }
     protected void onPause(){
-//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//        Date date = new Date(System.currentTimeMillis());
-//        txtHello.setText("定位暂停onPause："+df.format(date));
-//        MailManager.getInstance().sendMail("定位暂停onPause："+df.format(date), "XXXX");
         super.onPause();
     }
 
@@ -364,8 +354,6 @@ public class MainActivity extends AppCompatActivity {
         if(bServiceStarted==true) {
             Intent intent = new Intent(this, MyShieldService.class);
             stopService(intent);
-//        Intent intentGPS = new Intent(this,GPSService.class);
-//        stopService(intentGPS);
             GPSscheduler.getInstance().stopScheduler();
             bServiceStarted = false;
         }
